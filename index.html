@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Paste to Markdown — reinpasten, ein Klick, .md speichern." />
+<title>clip2md — Paste to Markdown</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:        oklch(0.19 0.012 265);
+    --bg-2:      oklch(0.235 0.014 265);
+    --bg-3:      oklch(0.28 0.016 265);
+    --line:      oklch(0.36 0.018 265);
+    --text:      oklch(0.94 0.008 265);
+    --muted:     oklch(0.66 0.014 265);
+    --accent:    oklch(0.74 0.15 155);
+    --accent-ink:oklch(0.20 0.05 155);
+    --danger:    oklch(0.68 0.15 25);
+    --radius: 12px;
+    --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  header h1 {
+    font-size: 17px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  header h1 .dot { color: var(--accent); }
+  header .sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  header .spacer { flex: 1; }
+  header .hint {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  header .hint kbd {
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 11px;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+    flex-wrap: wrap;
+  }
+  .fname {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0 4px 0 14px;
+    transition: border-color .15s;
+  }
+  .fname:focus-within { border-color: var(--accent); }
+  .fname .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    margin-right: 10px;
+    white-space: nowrap;
+  }
+  .fname input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 11px 0;
+  }
+  .fname .ext {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--muted);
+    padding: 0 12px;
+  }
+
+  button {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 550;
+    border: 1px solid var(--line);
+    background: var(--bg-3);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .05s;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--line); }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+    font-weight: 650;
+  }
+  button.primary:hover { filter: brightness(1.06); background: var(--accent); }
+  button.ghost { background: transparent; }
+  button.ghost:hover { background: var(--bg-3); }
+
+  main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    padding: 16px 22px;
+  }
+  #editor {
+    flex: 1;
+    width: 100%;
+    resize: none;
+    background: var(--bg-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.65;
+    outline: none;
+    tab-size: 2;
+    transition: border-color .15s;
+  }
+  #editor:focus { border-color: var(--accent); }
+  #editor::placeholder { color: var(--muted); }
+
+  footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 22px 14px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  footer .spacer { flex: 1; }
+  footer .count { font-family: var(--font-mono); }
+  footer .src { color: var(--accent); font-weight: 600; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    box-shadow: 0 8px 30px oklch(0 0 0 / 0.4);
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.err { border-color: var(--danger); }
+
+  @media (max-width: 640px) {
+    header, .bar, main, footer { padding-left: 14px; padding-right: 14px; }
+    header .hint { display: none; }
+    .bar { gap: 8px; }
+    button { padding: 11px 13px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>clip<span class="dot">2</span>md</h1>
+    <span class="sub">Reinpasten → ein Klick → als <code>.md</code> speichern.</span>
+    <span class="spacer"></span>
+    <span class="hint">Speichern <kbd>⌘/Strg</kbd> + <kbd>S</kbd> · Roh einfügen <kbd>⌘/Strg</kbd> + <kbd>⇧</kbd> + <kbd>V</kbd></span>
+  </header>
+
+  <div class="bar">
+    <label class="fname">
+      <span class="lbl">Dateiname</span>
+      <input id="filename" type="text" spellcheck="false" autocomplete="off" aria-label="Dateiname" />
+      <span class="ext">.md</span>
+    </label>
+    <button id="save" class="primary">Speichern</button>
+    <button id="copy" class="ghost">Kopieren</button>
+    <button id="clear" class="ghost">Leeren</button>
+  </div>
+
+  <main>
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocorrect="off"
+      placeholder="Hier reinpasten — ein langer Reddit-Thread, eine Website, formatierter Text…
+
+Formatiertes HTML (Copy aus dem Browser) wird automatisch zu sauberem Markdown. Reiner Text bleibt wie er ist.
+
+Dann ⌘/Strg+S oder „Speichern“."></textarea>
+  </main>
+
+  <footer>
+    <span class="count"><span id="words">0</span> Wörter · <span id="chars">0</span> Zeichen</span>
+    <span id="srcInfo" class="src"></span>
+    <span class="spacer"></span>
+    <span>clip2md · Heidrich Digital</span>
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="vendor/turndown.js"></script>
+  <script src="vendor/turndown-plugin-gfm.js"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    // ---- Turndown setup -------------------------------------------------
+    var turndown = new TurndownService({
+      headingStyle: "atx",
+      hr: "---",
+      bulletListMarker: "-",
+      codeBlockStyle: "fenced",
+      emDelimiter: "*",
+      strongDelimiter: "**",
+      linkStyle: "inlined"
+    });
+    try {
+      if (window.turndownPluginGfm && window.turndownPluginGfm.gfm) {
+        turndown.use(window.turndownPluginGfm.gfm);
+      }
+    } catch (e) { /* gfm optional */ }
+    // Drop noise that clutters pasted web pages.
+    turndown.remove(["script", "style", "noscript", "iframe", "svg"]);
+
+    var editor   = document.getElementById("editor");
+    var filename = document.getElementById("filename");
+    var wordsEl  = document.getElementById("words");
+    var charsEl  = document.getElementById("chars");
+    var srcInfo  = document.getElementById("srcInfo");
+    var toastEl  = document.getElementById("toast");
+
+    var filenameEdited = false; // becomes true once the user types in the field
+    var toastTimer = null;
+
+    // ---- Helpers --------------------------------------------------------
+    function toast(msg, isErr) {
+      toastEl.textContent = msg;
+      toastEl.classList.toggle("err", !!isErr);
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2200);
+    }
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    function today() {
+      var d = new Date();
+      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+
+    var UMLAUT = { "ä":"ae","ö":"oe","ü":"ue","ß":"ss","Ä":"ae","Ö":"oe","Ü":"ue" };
+    function slugify(s) {
+      if (!s) return "";
+      s = s.replace(/[äöüßÄÖÜ]/g, function (c) { return UMLAUT[c] || c; });
+      s = s.normalize("NFKD").replace(/[̀-ͯ]/g, ""); // strip accents
+      s = s.toLowerCase()
+           .replace(/[^a-z0-9]+/g, "-")
+           .replace(/^-+|-+$/g, "");
+      return s.slice(0, 60).replace(/-+$/g, "");
+    }
+
+    function deriveTitle(md) {
+      var lines = md.split(/\r?\n/);
+      // Prefer the first ATX heading.
+      for (var i = 0; i < lines.length; i++) {
+        var m = lines[i].match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/);
+        if (m && m[1].trim()) return m[1].trim();
+      }
+      // Otherwise the first non-empty, non-decorative line.
+      for (var j = 0; j < lines.length; j++) {
+        var t = lines[j].trim();
+        if (!t) continue;
+        if (/^([-*_=#>`|]{1,}|\[.*\])$/.test(t)) continue;
+        return t.replace(/^[#>*\-\s]+/, "").trim();
+      }
+      return "";
+    }
+
+    function computeFilename(md) {
+      var slug = slugify(deriveTitle(md));
+      return today() + (slug ? "-" + slug : "-clip");
+    }
+
+    function refreshFilename() {
+      if (filenameEdited) return;
+      filename.value = computeFilename(editor.value);
+    }
+
+    function updateCounts() {
+      var v = editor.value;
+      charsEl.textContent = v.length.toLocaleString("de-DE");
+      var w = v.trim() ? v.trim().split(/\s+/).length : 0;
+      wordsEl.textContent = w.toLocaleString("de-DE");
+    }
+
+    function refreshAll() { updateCounts(); refreshFilename(); }
+
+    // ---- Smart paste ----------------------------------------------------
+    // Cmd/Ctrl+Shift+V forces a raw (plain-text) paste.
+    var forceRaw = false;
+
+    editor.addEventListener("paste", function (e) {
+      var cd = e.clipboardData || window.clipboardData;
+      if (!cd) return; // let the browser handle it
+      var html = cd.getData("text/html");
+      var text = cd.getData("text/plain");
+
+      var out, source;
+      if (!forceRaw && html && html.trim()) {
+        try {
+          out = turndown.turndown(html).replace(/\n{3,}/g, "\n\n").trim();
+          source = "HTML → Markdown konvertiert";
+        } catch (err) {
+          out = text; source = "Roh eingefügt (Konvertierung fehlgeschlagen)";
+        }
+      } else {
+        out = text;
+        source = forceRaw ? "Roh eingefügt (erzwungen)" : "Roh eingefügt (kein HTML)";
+      }
+      forceRaw = false;
+      if (out == null) return;
+
+      e.preventDefault();
+      insertAtCursor(out);
+      srcInfo.textContent = source;
+      refreshAll();
+      toast(source);
+    });
+
+    function insertAtCursor(str) {
+      var start = editor.selectionStart, end = editor.selectionEnd;
+      var before = editor.value.slice(0, start);
+      var after = editor.value.slice(end);
+      editor.value = before + str + after;
+      var pos = start + str.length;
+      editor.selectionStart = editor.selectionEnd = pos;
+    }
+
+    editor.addEventListener("input", function () {
+      srcInfo.textContent = "";
+      refreshAll();
+    });
+
+    // ---- Filename field -------------------------------------------------
+    filename.addEventListener("input", function () {
+      filenameEdited = filename.value.trim().length > 0;
+    });
+
+    // ---- Save -----------------------------------------------------------
+    function save() {
+      var content = editor.value;
+      if (!content.trim()) { toast("Nichts zu speichern.", true); return; }
+      var name = (filename.value.trim() || computeFilename(content));
+      name = name.replace(/[\/\\:*?"<>|]+/g, "-").replace(/\s+/g, "-");
+      if (!/\.md$/i.test(name)) name += ".md";
+
+      var blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      toast("Gespeichert: " + name);
+    }
+
+    document.getElementById("save").addEventListener("click", save);
+
+    // ---- Copy -----------------------------------------------------------
+    document.getElementById("copy").addEventListener("click", function () {
+      var v = editor.value;
+      if (!v.trim()) { toast("Nichts zu kopieren.", true); return; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(v).then(
+          function () { toast("Markdown kopiert."); },
+          function () { legacyCopy(v); }
+        );
+      } else { legacyCopy(v); }
+    });
+    function legacyCopy(v) {
+      editor.focus(); editor.select();
+      try { document.execCommand("copy"); toast("Markdown kopiert."); }
+      catch (e) { toast("Kopieren nicht möglich.", true); }
+      editor.selectionStart = editor.selectionEnd = editor.value.length;
+    }
+
+    // ---- Clear ----------------------------------------------------------
+    document.getElementById("clear").addEventListener("click", function () {
+      if (editor.value && !confirm("Editor wirklich leeren?")) return;
+      editor.value = "";
+      filenameEdited = false;
+      srcInfo.textContent = "";
+      refreshAll();
+      editor.focus();
+    });
+
+    // ---- Keyboard -------------------------------------------------------
+    document.addEventListener("keydown", function (e) {
+      var mod = e.metaKey || e.ctrlKey;
+      if (mod && !e.shiftKey && !e.altKey && (e.key === "s" || e.key === "S")) {
+        e.preventDefault(); save(); return;
+      }
+      // Arm a raw paste for the next paste event.
+      if (mod && e.shiftKey && (e.key === "v" || e.key === "V")) {
+        forceRaw = true; // paste handler consumes and resets it
+      }
+    });
+
+    // ---- Init -----------------------------------------------------------
+    refreshAll();
+    editor.focus();
+  })();
+  </script>
+</body>
+</html>
