@@ -472,7 +472,7 @@
       pattern: LS.get('pattern', 'title')
     };
 
-    var filenameEdited = false, forceRaw = false, toastTimer = null, previewOn = LS.get('preview', false);
+    var filenameEdited = false, forceRaw = false, forceRawTimer = null, toastTimer = null, previewOn = LS.get('preview', false);
 
     // ---------- Turndown (rebuilt on settings change) ----------
     var td;
@@ -497,7 +497,7 @@
 
     var UML={ 'ä':'ae','ö':'oe','ü':'ue','ß':'ss','Ä':'ae','Ö':'oe','Ü':'ue' };
     function slugify(s){ if(!s) return '';
-      s=s.replace(/[äöüßÄÖÜ]/g,function(c){return UML[c]||c;}).normalize('NFKD').replace(/[̀-ͯ]/g,'');
+      s=s.replace(/[äöüßÄÖÜ]/g,function(c){return UML[c]||c;}).normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
       return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/g,''); }
     function deriveTitle(md){ var L=md.split(/\r?\n/), i, m, t;
       for(i=0;i<L.length;i++){ m=L[i].match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/); if(m&&m[1].trim()) return m[1].trim(); }
@@ -531,7 +531,7 @@
 
     // ---------- Preview ----------
     var pvTimer=null;
-    function escapeHtml(s){ return s.replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+    function escapeHtml(s){ return s.replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
     function renderPreview(){ if(!previewOn) return;
       var md=editor.value, fmHtml='';
       // Show YAML front matter as a compact metadata block, not as body text.
@@ -564,8 +564,15 @@
       forceRaw=false; if(out==null) return;
       e.preventDefault(); insertAtCursor(out); showSource(key,ok,true); refreshAll(true);
     });
-    function insertAtCursor(str){ var s=editor.selectionStart,en=editor.selectionEnd;
-      editor.value=editor.value.slice(0,s)+str+editor.value.slice(en); var p=s+str.length; editor.selectionStart=editor.selectionEnd=p; }
+    function insertAtCursor(str){
+      // execCommand haelt den nativen Undo-Stack der Textarea intakt (Cmd+Z nach dem Einfuegen).
+      editor.focus();
+      var ok=false;
+      try { ok = document.execCommand('insertText', false, str); } catch(e){ ok=false; }
+      if(ok) return;
+      var s=editor.selectionStart,en=editor.selectionEnd;
+      editor.value=editor.value.slice(0,s)+str+editor.value.slice(en);
+      var p=s+str.length; editor.selectionStart=editor.selectionEnd=p; }
 
     editor.addEventListener('input', function(){ hideSource(); refreshAll(false); });
 
@@ -575,10 +582,15 @@
     editor.addEventListener('drop', function(e){
       var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; main.classList.remove('drag'); if(!f) return;
       e.preventDefault(); var r=new FileReader();
+      if(f.size > 10*1024*1024){ toast(lang==='de'?'Datei zu gross (max. 10 MB)':'File too large (max 10 MB)', true); return; }
+      if(editor.value.trim() && !confirm(lang==='de'?'Editor-Inhalt durch die Datei ersetzen?':'Replace the editor content with this file?')) return;
+      r.onerror=function(){ toast(lang==='de'?'Datei nicht lesbar':'Could not read file', true); };
       r.onload=function(){ var txt=String(r.result||''); var name=f.name.toLowerCase();
         if(/\.html?$/.test(name)){ try{ txt=td.turndown(txt).replace(/\n{3,}/g,'\n\n').trim(); showSource('src_conv',true,true); }catch(_){ showSource('src_fail',false,true);} }
         else { showSource('src_raw',false,true); }
-        editor.value=txt; if(!filenameEdited && /\.(md|markdown|txt|html?)$/.test(name)){ } refreshAll(true); toast(t('loaded')); };
+        editor.value=txt;
+        if(!filenameEdited){ var base=f.name.replace(/\.[^.]+$/,''); if(base){ filename.value=slugify(base)||computeFilename(txt); } }
+        refreshAll(true); toast(t('loaded')); };
       r.readAsText(f);
     });
 
@@ -608,7 +620,7 @@
     // ---------- Keyboard ----------
     document.addEventListener('keydown', function(e){ var mod=e.metaKey||e.ctrlKey;
       if(mod && !e.shiftKey && !e.altKey && (e.key==='s'||e.key==='S')){ e.preventDefault(); save(); return; }
-      if(mod && e.shiftKey && (e.key==='v'||e.key==='V')){ forceRaw=true; }
+      if(mod && e.shiftKey && (e.key==='v'||e.key==='V')){ forceRaw=true; clearTimeout(forceRawTimer); forceRawTimer=setTimeout(function(){ forceRaw=false; },3000); }
       if(e.key==='Escape'){ closeSettings(); } });
 
     // ---------- Preview toggle ----------

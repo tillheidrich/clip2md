@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="clip2md">
-  <rect width="512" height="512" rx="112" fill="#c14a2b"/>
-  <g fill="none" stroke="#fdf6f1" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="currentColor" stroke-width="44" stroke-linecap="round" stroke-linejoin="round">
     <path d="M118 352V166l86 94 86-94v186"/>
     <path d="M384 166v140"/>
     <path d="M338 268l46 52 46-52"/>
