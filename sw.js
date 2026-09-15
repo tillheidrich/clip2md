@@ -1,8 +1,11 @@
 /* clip2md service worker — offline shell cache. Bump CACHE on any asset change. */
-var CACHE = 'clip2md-v2';
+var CACHE = 'clip2md-v3';
 var ASSETS = [
   './',
   './index.html',
+  './impressum.html',
+  './datenschutz.html',
+  './legal.css',
   './icon.svg',
   './manifest.webmanifest',
   './vendor/turndown.js',

@@ -289,6 +289,9 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
+  footer .legal-links { display: inline-flex; gap: 0.5rem; align-items: center; }
+  footer .legal-links a { color: var(--ink-3); text-decoration: none; }
+  footer .legal-links a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -355,6 +358,7 @@
     <span class="badge" id="srcBadge"><span class="led"></span><span id="srcText"></span></span>
     <span class="spacer"></span>
     <span data-i18n="privacy">client-side · nothing is uploaded</span>
+    <span class="legal-links"><a href="impressum.html">Impressum</a> &middot; <a href="datenschutz.html">Datenschutz</a></span>
   </footer>
 
   <!-- Settings -->
