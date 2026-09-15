@@ -2,7 +2,7 @@ FROM nginx:1.27-alpine
 
 # Static single-page app — no build step.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html manifest.webmanifest sw.js icon.svg /usr/share/nginx/html/
+COPY index.html impressum.html datenschutz.html legal.css manifest.webmanifest sw.js icon.svg /usr/share/nginx/html/
 COPY vendor/ /usr/share/nginx/html/vendor/
 
 EXPOSE 80
