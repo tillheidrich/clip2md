@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="clip2md" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <title>clip2md — Paste to Markdown</title>
 <script>
   try { var th = JSON.parse(localStorage.getItem('clip2md:theme')); if (th === 'dark' || (th === null && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
@@ -730,6 +730,18 @@
     setLang(LS.get('lang', navLang==='de'?'de':'en'));
     setPreview(previewOn);
     setFnameTag(); refreshAll(false);
+
+    // ---------- Share target (Android: Share → clip2md) ----------
+    (function(){
+      var q; try { q=new URLSearchParams(location.search); } catch(e){ return; }
+      var title=(q.get('title')||'').trim(), text=(q.get('text')||'').trim(), url=(q.get('url')||'').trim();
+      if(!title && !text && !url) return;
+      if(!url){ var m=text.match(/https?:\/\/\S+$/); if(m){ url=m[0]; text=text.slice(0,m.index).trim(); } }
+      var md=(title && text.indexOf(title)!==0 ? '# '+title+'\n\n' : '')+text+(url && text.indexOf(url)<0 ? (text?'\n\n':'')+'<'+url+'>' : '');
+      if(url){ settings.source=url; $('fmSource').value=url; }
+      editor.value=md; showSource('src_raw', false); refreshAll(true);
+      try { history.replaceState(null, '', location.pathname); } catch(e){}
+    })();
     if(!coarse) editor.focus();
 
     if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }

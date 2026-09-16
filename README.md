@@ -39,7 +39,8 @@ Obsidian vault, a wiki, or a repo.
 - **Bilingual.** English and German, switchable in the header.
 - **Light & dark.** Warm paper, one strong blue, clipboard logo; dark mode one click away.
 - **Save / copy / clear**, word + character count and reading time.
-- **Installable PWA**, fully offline after first load.
+- **Installable PWA**, fully offline after first load. On Android, clip2md shows up in the
+  system share sheet: share a page or selection straight into the editor.
 
 Everything is **client-side**. No servers, no CDNs, no third-party requests — GDPR-friendly by
 construction.
