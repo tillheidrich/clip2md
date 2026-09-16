@@ -2,29 +2,29 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#faf7f2" />
+<meta name="theme-color" content="#EAEAE3" />
 <title>Impressum — clip2md</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="legal.css" />
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/legal.css" />
 <script>
-  try { var t = JSON.parse(localStorage.getItem('clip2md:theme')); if (t === 'dark') document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
+  try { var th = JSON.parse(localStorage.getItem('clip2md:theme')); if (th === 'dark' || (th === null && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
 </script>
 </head>
 <body>
-  <header class="legal-head">
-    <div class="inner">
-      <a class="back" href="/"><span class="wordmark">clip<b>2</b>md</span></a>
-      <nav>
-        <a href="impressum.html" aria-current="page">Impressum</a>
-        <a href="datenschutz.html">Datenschutz</a>
-      </nav>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="1.5"/><path d="M12 9.5v7.5M8.8 13.8 12 17l3.2-3.2"/></g><rect x="8.6" y="2.4" width="6.8" height="3.8" rx="1" fill="currentColor"/></svg><span>clip<span class="two">2</span>md</span></a>
+    <nav>
+      <a href="/impressum.html" aria-current="page">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+    </nav>
   </header>
 
   <main class="legal">
+    <span class="mono-label">Rechtliches</span>
     <h1>Impressum</h1>
+    <div class="card">
 
     <h2>Angaben gemäß § 5 DDG</h2>
     <table class="legal-table">
@@ -65,12 +65,15 @@
     <h2>Urheberrecht und Lizenz</h2>
     <p>
       Der Quellcode von clip2md steht unter der MIT-Lizenz. Die eingebundenen Bibliotheken
-      (Turndown, Marked, DOMPurify) und die Schriftfamilie Geist stehen unter ihren jeweiligen
-      freien Lizenzen. Texte und Gestaltung dieser Seite unterliegen dem deutschen Urheberrecht.
+      (Turndown, Marked, DOMPurify, MIT- bzw. Apache-Lizenz) und die Schriftfamilien Space Grotesk und Space Mono stehen unter ihren jeweiligen
+      freien Lizenzen (Schriften: SIL Open Font License). Texte und Gestaltung dieser Seite unterliegen dem deutschen Urheberrecht.
     </p>
 
+    </div>
     <div class="legal-foot">
-      <a href="/">Zurück zum Werkzeug</a> · <a href="datenschutz.html">Datenschutzerklärung</a>
+      <a href="/">← Zurück zu clip2md</a>
+      <a href="/datenschutz.html">Datenschutzerklärung</a>
+      <a href="https://www.paypal.com/donate/?business=info%40tillheidrich.de&amp;currency_code=EUR&amp;item_name=clip2md" target="_blank" rel="noopener nofollow">Spenden</a>
     </div>
   </main>
 </body>

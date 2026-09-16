@@ -2,29 +2,29 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#faf7f2" />
+<meta name="theme-color" content="#EAEAE3" />
 <title>Datenschutzerklärung — clip2md</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="legal.css" />
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/legal.css" />
 <script>
-  try { var t = JSON.parse(localStorage.getItem('clip2md:theme')); if (t === 'dark') document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
+  try { var th = JSON.parse(localStorage.getItem('clip2md:theme')); if (th === 'dark' || (th === null && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
 </script>
 </head>
 <body>
-  <header class="legal-head">
-    <div class="inner">
-      <a class="back" href="/"><span class="wordmark">clip<b>2</b>md</span></a>
-      <nav>
-        <a href="impressum.html">Impressum</a>
-        <a href="datenschutz.html" aria-current="page">Datenschutz</a>
-      </nav>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="17" rx="1.5"/><path d="M12 9.5v7.5M8.8 13.8 12 17l3.2-3.2"/></g><rect x="8.6" y="2.4" width="6.8" height="3.8" rx="1" fill="currentColor"/></svg><span>clip<span class="two">2</span>md</span></a>
+    <nav>
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html" aria-current="page">Datenschutz</a>
+    </nav>
   </header>
 
   <main class="legal">
+    <span class="mono-label">Rechtliches</span>
     <h1>Datenschutzerklärung</h1>
+    <div class="card">
 
     <p class="intro">
       Der Text, den Sie auf dieser Seite einfügen, wird ausschließlich in Ihrem Browser
@@ -56,6 +56,13 @@
       Das Speichern des Ergebnisses als <code>.md</code>-Datei sowie das Kopieren in die
       Zwischenablage erfolgen ebenfalls lokal über die entsprechenden Browser-Schnittstellen.
       Auch dabei werden keine Daten an uns übermittelt.
+    </p>
+    <p>
+      Über die Schaltfläche „Einfügen" liest die Seite die Zwischenablage Ihres Geräts aus. Das
+      geschieht nur, wenn Sie die Schaltfläche betätigen, und je nach Browser erst nach Ihrer
+      Zustimmung. Der Inhalt wird wie beim Einfügen per Tastatur ausschließlich lokal umgewandelt.
+      Auf Smartphones übergibt „Speichern" die Datei an das Teilen-Menü Ihres Betriebssystems; wohin
+      Sie sie von dort weitergeben, entscheiden Sie selbst.
     </p>
 
     <h2>3. Lokale Speicherung Ihrer Einstellungen</h2>
@@ -117,7 +124,7 @@
       Einwilligungsabfrage ist deshalb nicht erforderlich.
     </p>
     <p>
-      Eine Ausnahme betrifft die optionale Vorschau: Enthält der von Ihnen eingefuegte Text
+      Eine Ausnahme betrifft die optionale Vorschau: Enthält der von Ihnen eingefügte Text
       Bilder, die auf fremde Server verweisen, lädt Ihr Browser diese Bilder beim Anzeigen der
       Vorschau von dort. Dabei erfährt der jeweilige fremde Server Ihre IP-Adresse. Übertragen
       wird dabei nichts von Ihrem Text; die Herkunft wird durch die Einstellung
@@ -125,7 +132,28 @@
       vermeiden möchten, lassen Sie die Vorschau ausgeschaltet.
     </p>
 
-    <h2>8. Ihre Rechte</h2>
+    <h2>8. Spenden über PayPal</h2>
+    <p>
+      Auf der Seite finden Sie einen Link „Spenden" bzw. „Buy me a coffee". Es handelt sich um einen
+      einfachen Link; beim Aufruf von clip2md werden keine Inhalte, Skripte oder Cookies von PayPal
+      geladen und keine Daten an PayPal übertragen. Erst wenn Sie den Link anklicken, verlassen Sie
+      diese Seite und werden zu PayPal weitergeleitet.
+    </p>
+    <p>
+      Anbieter ist die PayPal (Europe) S.à r.l. et Cie, S.C.A., 22–24 Boulevard Royal, L-2449
+      Luxemburg. Für die Verarbeitung auf den Seiten von PayPal ist PayPal selbst verantwortlich; es
+      gilt dessen Datenschutzerklärung:
+      <a href="https://www.paypal.com/de/legalhub/privacy-full" rel="noopener nofollow">paypal.com/de/legalhub/privacy-full</a>.
+    </p>
+    <p>
+      Wenn Sie spenden, erhalten wir von PayPal die zur Abwicklung nötigen Angaben: Ihren Namen, Ihre
+      E-Mail-Adresse, den Betrag, das Datum und gegebenenfalls eine Nachricht, die Sie hinzufügen.
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Abwicklung der Zuwendung) sowie Art. 6 Abs. 1
+      lit. c DSGVO in Verbindung mit den steuer- und handelsrechtlichen Aufbewahrungspflichten
+      (in der Regel zehn Jahre). Eine weitere Nutzung, etwa für Werbung, findet nicht statt.
+    </p>
+
+    <h2>9. Ihre Rechte</h2>
     <p>
       Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung
       (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) sowie
@@ -133,17 +161,20 @@
       (Art. 21). Wenden Sie sich dafür an die oben genannte Adresse.
     </p>
 
-    <h2>9. Beschwerderecht</h2>
+    <h2>10. Beschwerderecht</h2>
     <p>
       Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren. Zuständig ist die
       Landesbeauftragte für den Datenschutz Niedersachsen, Prinzenstraße 5, 30159 Hannover.
     </p>
 
-    <h2>10. Stand</h2>
+    <h2>11. Stand</h2>
     <p>Diese Datenschutzerklärung hat den Stand September 2026.</p>
 
+    </div>
     <div class="legal-foot">
-      <a href="/">Zurück zum Werkzeug</a> · <a href="impressum.html">Impressum</a>
+      <a href="/">← Zurück zu clip2md</a>
+      <a href="/impressum.html">Impressum</a>
+      <a href="https://www.paypal.com/donate/?business=info%40tillheidrich.de&amp;currency_code=EUR&amp;item_name=clip2md" target="_blank" rel="noopener nofollow">Spenden</a>
     </div>
   </main>
 </body>

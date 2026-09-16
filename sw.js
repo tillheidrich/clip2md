@@ -1,19 +1,25 @@
-/* clip2md service worker — offline shell cache. Bump CACHE on any asset change. */
-var CACHE = 'clip2md-v3';
+/* clip2md service worker.
+   Pages (navigations, .html): network first, cache only as offline fallback —
+   so new or changed pages are never frozen for existing users.
+   Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
+var CACHE = 'clip2md-v4';
 var ASSETS = [
-  './',
-  './index.html',
-  './impressum.html',
-  './datenschutz.html',
-  './legal.css',
-  './icon.svg',
-  './manifest.webmanifest',
-  './vendor/turndown.js',
-  './vendor/turndown-plugin-gfm.js',
-  './vendor/marked.umd.js',
-  './vendor/purify.min.js',
-  './vendor/fonts/Geist-Variable.woff2',
-  './vendor/fonts/GeistMono-Variable.woff2'
+  '/',
+  '/index.html',
+  '/impressum.html',
+  '/datenschutz.html',
+  '/legal.css',
+  '/icon.svg',
+  '/manifest.webmanifest',
+  '/vendor/turndown.js',
+  '/vendor/turndown-plugin-gfm.js',
+  '/vendor/marked.umd.js',
+  '/vendor/purify.min.js',
+  '/vendor/fonts/space-grotesk-latin-400-normal.woff2',
+  '/vendor/fonts/space-grotesk-latin-500-normal.woff2',
+  '/vendor/fonts/space-grotesk-latin-700-normal.woff2',
+  '/vendor/fonts/space-mono-latin-400-normal.woff2',
+  '/vendor/fonts/space-mono-latin-700-normal.woff2'
 ];
 
 self.addEventListener('install', function (e) {
@@ -29,18 +35,36 @@ self.addEventListener('activate', function (e) {
   );
 });
 
+function isPage(req, url) {
+  return req.mode === 'navigate' || req.destination === 'document' || /\.html$/.test(url.pathname) || url.pathname === '/';
+}
+
 self.addEventListener('fetch', function (e) {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    caches.match(e.request).then(function (hit) {
-      return hit || fetch(e.request).then(function (res) {
-        // Runtime-cache same-origin successful responses.
-        if (res && res.ok && e.request.url.indexOf(self.location.origin) === 0) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
-        }
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // external links (PayPal, GitHub) untouched
+
+  if (isPage(req, url)) {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
         return res;
-      }).catch(function () { return caches.match('./index.html'); });
+      }).catch(function () {
+        return caches.match(req).then(function (hit) {
+          return hit || caches.match(url.pathname.replace(/\/$/, '/index.html')) || caches.match('/index.html');
+        });
+      })
+    );
+    return;
+  }
+
+  e.respondWith(
+    caches.match(req).then(function (hit) {
+      return hit || fetch(req).then(function (res) {
+        if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
+        return res;
+      });
     })
   );
 });

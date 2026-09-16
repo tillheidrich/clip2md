@@ -1,13 +1,14 @@
 {
   "name": "clip2md — Paste to Markdown",
   "short_name": "clip2md",
-  "description": "Paste rich text or a web page and save it as clean Markdown in one keystroke. Client-side, private, offline-capable.",
-  "start_url": ".",
-  "scope": ".",
+  "description": "Paste rich text or a web page and save it as clean Markdown in one click. Client-side, private, offline-capable.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#faf7f2",
-  "theme_color": "#faf7f2",
+  "background_color": "#EAEAE3",
+  "theme_color": "#EAEAE3",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }
