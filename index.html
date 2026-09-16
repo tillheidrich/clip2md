@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <title>clip2md — Paste to Markdown</title>
 <script>
+  try { var lc = JSON.parse(localStorage.getItem('clip2md:langChoice')); var nl = (navigator.languages && navigator.languages[0]) || navigator.language || 'en'; document.documentElement.lang = (lc === 'de' || lc === 'en') ? lc : (/^de/i.test(nl) ? 'de' : 'en'); } catch (e) {}
   try { var th = JSON.parse(localStorage.getItem('clip2md:theme')); if (th === 'dark' || (th === null && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.setAttribute('data-theme','dark'); } catch (e) {}
 </script>
 <style>
@@ -420,8 +421,8 @@
       <a class="coffee" data-donate hidden href="#" target="_blank" rel="noopener nofollow" data-i18n="coffee">Buy me a coffee</a>
       <button class="linkish" id="helpBtn" type="button" data-i18n="iphone">iPhone shortcut</button>
       <a href="https://github.com/tillheidrich/clip2md" target="_blank" rel="noopener">GitHub</a>
-      <a href="/impressum.html">Impressum</a>
-      <a href="/datenschutz.html">Datenschutz</a>
+      <a href="/impressum.html" id="lnkImp" data-i18n="l_imp">Impressum</a>
+      <a href="/datenschutz.html" id="lnkDs" data-i18n="l_ds">Datenschutz</a>
     </nav>
   </footer>
 
@@ -520,7 +521,7 @@
       en: {
         tagline: 'Paste → Markdown', preview: 'Preview', file: 'File', save: 'Save', copy: 'Copy', clear: 'Clear', open: 'Open', paste: 'Paste',
         donate: 'Donate', coffee: 'Buy me a coffee', t_donate: 'Support clip2md',
-        raw_again: 'Undo clean-up', t_obs: 'Open in Obsidian', history: 'History', iphone: 'iPhone shortcut',
+        l_imp: 'Legal notice', l_ds: 'Privacy', raw_again: 'Undo clean-up', t_obs: 'Open in Obsidian', history: 'History', iphone: 'iPhone shortcut',
         src_article: 'Article extracted', src_cleaned: 'Page cleaned up', src_reddit: 'Reddit thread',
         s_clean: 'Clean-up', s_cleanup: 'Clean up web pages', s_cleanup_hint: 'Drop navigation, cookie banners, buttons',
         s_reddit: 'Format Reddit threads', s_reddit_hint: 'No vote counts, comments as nested quotes',
@@ -550,7 +551,7 @@
       de: {
         tagline: 'Einfügen → Markdown', preview: 'Vorschau', file: 'Datei', save: 'Speichern', copy: 'Kopieren', clear: 'Leeren', open: 'Öffnen', paste: 'Einfügen',
         donate: 'Spenden', coffee: 'Spendier mir einen Kaffee', t_donate: 'clip2md unterstützen',
-        raw_again: 'Ohne Aufräumen', t_obs: 'In Obsidian öffnen', history: 'Verlauf', iphone: 'iPhone-Kurzbefehl',
+        l_imp: 'Impressum', l_ds: 'Datenschutz', raw_again: 'Ohne Aufräumen', t_obs: 'In Obsidian öffnen', history: 'Verlauf', iphone: 'iPhone-Kurzbefehl',
         src_article: 'Artikel extrahiert', src_cleaned: 'Seite aufgeräumt', src_reddit: 'Reddit-Thread',
         s_clean: 'Aufräumen', s_cleanup: 'Webseiten aufräumen', s_cleanup_hint: 'Navigation, Cookie-Banner, Knöpfe entfernen',
         s_reddit: 'Reddit-Threads aufbereiten', s_reddit_hint: 'Keine Votes, Kommentare als verschachtelte Zitate',
@@ -826,6 +827,8 @@
     // ---------- Language ----------
     function applyLang(){
       document.documentElement.setAttribute('lang', lang);
+      $('lnkImp').href = lang==='de' ? '/impressum.html' : '/imprint.html';
+      $('lnkDs').href = lang==='de' ? '/datenschutz.html' : '/privacy.html';
       document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent=t(el.getAttribute('data-i18n')); });
       document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph'))); });
       document.querySelectorAll('[data-i18n-title]').forEach(function(el){ el.setAttribute('title', t(el.getAttribute('data-i18n-title'))); el.setAttribute('aria-label', t(el.getAttribute('data-i18n-title'))); });
@@ -833,8 +836,8 @@
       if(coarse){ $('empty').querySelector('p').textContent=t('empty_p'); }
       if(srcBadge.dataset.key) srcText.textContent=t(srcBadge.dataset.key);
       setFnameTag(); updateCounts(); }
-    function setLang(l){ lang=l; LS.set('lang',l); applyLang(); }
-    $('langBtn').addEventListener('click', function(){ setLang(lang==='de'?'en':'de'); });
+    function setLang(l){ lang=l; applyLang(); }
+    $('langBtn').addEventListener('click', function(){ var l=lang==='de'?'en':'de'; LS.set('langChoice', l); setLang(l); });
 
     // ---------- Settings ----------
     var sheets=[settingsPop, $('histPop'), $('helpPop')];
@@ -949,8 +952,15 @@
 
     // ---------- Init ----------
     setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light', false);
-    var navLang=(navigator.language||'en').slice(0,2).toLowerCase();
-    setLang(LS.get('lang', navLang==='de'?'de':'en'));
+    // Language: an explicit choice (language button) wins; otherwise the browser's preferred languages.
+    // The old 'lang' key is ignored on purpose: earlier versions stored 'en' for everyone.
+    function browserLang(){
+      var list=(navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language||'en'];
+      for(var i=0;i<list.length;i++){ var c=String(list[i]||'').slice(0,2).toLowerCase(); if(c==='de'||c==='en') return c; }
+      return 'en';
+    }
+    var chosen=LS.get('langChoice', null);
+    setLang(chosen==='de'||chosen==='en' ? chosen : browserLang());
     setPreview(previewOn);
     setFnameTag(); refreshAll(false);
 
