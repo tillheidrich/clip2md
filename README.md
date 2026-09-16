@@ -100,6 +100,10 @@ npm pack turndown turndown-plugin-gfm marked dompurify @mozilla/readability @fon
 
 Bump the `CACHE` constant in `sw.js` whenever an asset changes so clients pick it up.
 
+## Support
+
+clip2md is free. If it saves you time: [buy me a coffee via PayPal](https://www.paypal.com/ncp/payment/54FPXDFBMP5TJ) · Gefällt dir clip2md? [Spendier mir einen Kaffee](https://www.paypal.com/ncp/payment/54FPXDFBMP5TJ).
+
 ## License
 
 [MIT](LICENSE). Turndown, marked, DOMPurify, Mozilla Readability, Space Grotesk and Space Mono are under their respective MIT/Apache/OFL licenses.

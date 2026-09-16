@@ -944,7 +944,7 @@
     $('histClear').addEventListener('click', function(){ if(confirm(t('hist_clear_confirm'))) H.clear().then(renderHistory); });
 
     // ---------- Donate (only shown once a working link is configured) ----------
-    var DONATE_URL='';
+    var DONATE_URL='https://www.paypal.com/ncp/payment/54FPXDFBMP5TJ';
     if(DONATE_URL){ document.querySelectorAll('[data-donate]').forEach(function(a){ a.href=DONATE_URL; a.target='_blank'; a.rel='noopener nofollow'; a.hidden=false; }); }
 
     // ---------- Init ----------
