@@ -3,7 +3,7 @@ FROM nginx:1.27-alpine
 # Static single-page app — no build step.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY security-headers.conf /etc/nginx/security-headers.conf
-COPY index.html impressum.html datenschutz.html legal.css icon-mono.svg manifest.webmanifest sw.js icon.svg icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png /usr/share/nginx/html/
+COPY index.html clean.js impressum.html datenschutz.html legal.css icon-mono.svg manifest.webmanifest sw.js icon.svg icon-192.png icon-512.png icon-maskable-512.png apple-touch-icon.png /usr/share/nginx/html/
 COPY vendor/ /usr/share/nginx/html/vendor/
 
 EXPOSE 80

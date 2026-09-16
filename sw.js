@@ -2,7 +2,7 @@
    Pages (navigations, .html): network first, cache only as offline fallback —
    so new or changed pages are never frozen for existing users.
    Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
-var CACHE = 'clip2md-v5';
+var CACHE = 'clip2md-v6';
 var ASSETS = [
   '/',
   '/index.html',
@@ -17,6 +17,8 @@ var ASSETS = [
   '/vendor/turndown-plugin-gfm.js',
   '/vendor/marked.umd.js',
   '/vendor/purify.min.js',
+  '/vendor/Readability.js',
+  '/clean.js',
   '/vendor/fonts/space-grotesk-latin-400-normal.woff2',
   '/vendor/fonts/space-grotesk-latin-500-normal.woff2',
   '/vendor/fonts/space-grotesk-latin-700-normal.woff2',

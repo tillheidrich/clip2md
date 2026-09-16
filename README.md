@@ -25,6 +25,16 @@ Obsidian vault, a wiki, or a repo.
   picks the HTML version when there is one. Browsers ask once for permission; `⌘V` always works too.
 - **Smart paste.** Formatted HTML (copy from a browser, e.g. Reddit `⌘A` → `⌘C`) is converted to
   clean Markdown. Plain text stays raw. Same `⌘V` for both, no mode switch.
+- **Page clean-up.** Pasting a whole web page drops navigation, cookie banners, share buttons and
+  sidebars; articles are extracted with Mozilla Readability. *Undo clean-up* re-inserts the
+  unfiltered version with one click.
+- **Reddit threads.** New and old Reddit: post title, subreddit and author on top, no vote counts or
+  Reply/Share leftovers, comments as nested quotes with `(OP)` marked.
+- **Open in Obsidian.** Optional button that creates the note straight in your vault (vault and
+  folder configurable), via the `obsidian://` URI and the clipboard — no file detour.
+- **History (opt-in).** Keeps the last 10 clips in this browser's IndexedDB. Off by default.
+- **iPhone shortcut.** iOS keeps web apps out of the share sheet; a four-step Shortcut fills the gap
+  (see [docs/ios-shortcut.md](docs/ios-shortcut.md) or *iPhone shortcut* in the app footer).
 - **Force raw.** `⌘/Ctrl+Shift+V` pastes the next clip as plain text, skipping conversion.
 - **Live preview.** Toggle a side-by-side rendered Markdown view (marked + DOMPurify).
 - **Auto filename.** Derived from the first heading + date, e.g. `2026-08-11-my-thread.md`.
@@ -79,11 +89,12 @@ Any static host works — point it at this repo. The reference deployment uses
 ## Update vendored libraries
 
 ```bash
-npm pack turndown turndown-plugin-gfm marked dompurify @fontsource/space-grotesk @fontsource/space-mono
+npm pack turndown turndown-plugin-gfm marked dompurify @mozilla/readability @fontsource/space-grotesk @fontsource/space-mono
 # turndown/dist/turndown.js                    -> vendor/turndown.js
 # turndown-plugin-gfm/dist/turndown-plugin-gfm.js -> vendor/turndown-plugin-gfm.js
 # marked/lib/marked.umd.js                     -> vendor/marked.umd.js
 # dompurify/dist/purify.min.js                 -> vendor/purify.min.js
+# @mozilla/readability/Readability.js           -> vendor/Readability.js
 # @fontsource/*/files/*-latin-{400,500,700}-normal.woff2 -> vendor/fonts/
 ```
 
@@ -91,8 +102,5 @@ Bump the `CACHE` constant in `sw.js` whenever an asset changes so clients pick i
 
 ## License
 
-[MIT](LICENSE). Turndown, marked, DOMPurify, Space Grotesk and Space Mono are under their respective MIT/Apache/OFL licenses.
+[MIT](LICENSE). Turndown, marked, DOMPurify, Mozilla Readability, Space Grotesk and Space Mono are under their respective MIT/Apache/OFL licenses.
 
-## Support
-
-clip2md is free. If it saves you time: [buy me a coffee via PayPal](https://www.paypal.com/donate/?business=info%40tillheidrich.de&currency_code=EUR&item_name=clip2md).

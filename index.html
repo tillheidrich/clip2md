@@ -111,6 +111,14 @@
   .pill.donate { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 45%, var(--line)); }
   .pill.donate:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   .pill.donate svg { width: 16px; height: 16px; }
+  .mini { min-height: 30px; padding: 0 11px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px;
+    background: transparent; color: var(--ink-soft); font-size: 0.8rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: color .15s, background .15s, border-color .15s; }
+  .mini:hover { color: var(--ink); background: var(--tint); }
+  .mini.accent { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, var(--line)); }
+  .mini svg { width: 14px; height: 14px; }
+  .mini[hidden] { display: none; }
+  .btn.nudge { animation: nudge 1.4s var(--ease) 3; }
+  @keyframes nudge { 0%,100% { box-shadow: 0 0 0 0 var(--accent-bg); } 50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--accent) 22%, transparent); } }
 
   /* ---------- Action bar ---------- */
   .bar { display: flex; align-items: stretch; gap: 8px; padding: 16px var(--gut) 12px; flex-wrap: wrap; }
@@ -156,6 +164,7 @@
   .pane-head .regmark::before { left: 50%; top: 0; width: 1.5px; height: 100%; transform: translateX(-50%); }
   .pane-head .regmark::after { top: 50%; left: 0; height: 1.5px; width: 100%; transform: translateY(-50%); }
   .pane-head .spacer { flex: 1; }
+  .pane-head .badge { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   main:not(.split) .preview-pane { display: none; }
   .editor-pane:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
   main.drag .editor-pane { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
@@ -206,6 +215,29 @@
   footer nav a { color: var(--ink-soft); text-decoration: none; padding: 6px 0; }
   footer nav a:hover { color: var(--accent); }
   footer nav a.coffee { color: var(--accent); font-weight: 500; }
+  footer nav button.linkish { background: none; border: 0; padding: 6px 0; color: var(--ink-soft); cursor: pointer; font-size: inherit; }
+  footer nav button.linkish:hover { color: var(--accent); }
+  [data-donate][hidden] { display: none !important; }
+
+  /* History + help sheets reuse .pop */
+  .pop.wide { width: 420px; }
+  .hist { list-style: none; margin: 0; padding: 0 6px 6px; }
+  .hist li { display: flex; align-items: center; gap: 8px; border-radius: var(--radius-sm); }
+  .hist li:hover { background: var(--tint); }
+  .hist .load { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 10px 8px; cursor: pointer; min-height: 48px; }
+  .hist .load b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist .load span { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+  .hist .del { width: 40px; height: 40px; border: 0; background: none; color: var(--ink-soft); cursor: pointer; border-radius: 999px; }
+  .hist .del:hover { color: var(--err); }
+  .pop .empty-note { padding: 6px 12px 14px; color: var(--ink-soft); font-size: 0.9rem; margin: 0; }
+  .pop .foot { display: flex; justify-content: space-between; gap: 8px; padding: 6px 12px 10px; }
+  .help { padding: 0 12px 12px; font-size: 0.93rem; }
+  .help ol { padding-left: 1.2rem; margin: 6px 0 10px; }
+  .help li { margin-bottom: 6px; }
+  .help code { font-family: var(--mono); font-size: 0.82em; background: var(--tint); padding: 1px 4px; border-radius: 3px; overflow-wrap: anywhere; }
+  .help p { margin: 6px 0; color: var(--ink-soft); }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 0 12px; }
+  .sheet-head h2 { font-size: 1.05rem; margin: 6px 0; }
 
   /* ---------- Settings sheet ---------- */
   .scrim { position: fixed; inset: 0; z-index: 45; background: oklch(21% 0.01 95 / 0.25); opacity: 0; pointer-events: none; transition: opacity .2s var(--ease); }
@@ -270,6 +302,11 @@
     .pop.open { animation: sheet .24s var(--ease); }
     @keyframes sheet { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
     footer { font-size: 0.8rem; }
+    .pop.wide { width: auto; }
+    .pane-head { flex-wrap: wrap; row-gap: 6px; }
+    #histBtn span, #obsBtn span { display: none; }
+    #histBtn, #obsBtn { width: 34px; padding: 0; justify-content: center; }
+    .mini { min-height: 34px; }
   }
   @media (max-width: 380px) {
     .brand { font-size: 1.05rem; }
@@ -302,7 +339,7 @@
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
       </button>
       <button id="langBtn" class="pill lang" title="Deutsch">DE</button>
-      <a class="pill donate" id="donateTop" href="https://www.paypal.com/donate/?business=info%40tillheidrich.de&amp;currency_code=EUR&amp;item_name=clip2md" target="_blank" rel="noopener nofollow" data-i18n-title="t_donate" title="Support clip2md">
+      <a class="pill donate" id="donateTop" data-donate hidden href="#" target="_blank" rel="noopener nofollow" data-i18n-title="t_donate" title="Support clip2md">
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z"/></svg>
         <span class="lbl" data-i18n="donate">Donate</span>
       </a>
@@ -347,6 +384,15 @@
         <span class="regmark" aria-hidden="true"></span><span class="mono-label">Markdown</span>
         <span class="spacer"></span>
         <span class="badge mono-label" id="srcBadge" aria-live="polite"><span class="led"></span><span id="srcText"></span></span>
+        <button class="mini" id="rawBtn" type="button" hidden data-i18n="raw_again">Undo clean-up</button>
+        <button class="mini" id="histBtn" type="button" hidden data-i18n-title="history" title="History">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3.5 4.5V9H8"/><path d="M12 7.5V12l3 2"/></svg>
+          <span data-i18n="history">History</span>
+        </button>
+        <button class="mini accent" id="obsBtn" type="button" hidden data-i18n-title="t_obs" title="Open in Obsidian">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 19 7v10l-7 4.2L5 17V7Z"/><path d="M12 2.8v18.4"/></svg>
+          <span>Obsidian</span>
+        </button>
       </div>
       <textarea id="editor" spellcheck="false" autocapitalize="off" autocorrect="off" aria-label="Markdown editor"></textarea>
       <div class="empty" id="empty">
@@ -371,7 +417,8 @@
     <span data-i18n="privacy">Runs in your browser. Nothing is uploaded.</span>
     <span class="spacer"></span>
     <nav aria-label="Footer">
-      <a class="coffee" href="https://www.paypal.com/donate/?business=info%40tillheidrich.de&amp;currency_code=EUR&amp;item_name=clip2md" target="_blank" rel="noopener nofollow" data-i18n="coffee">Buy me a coffee</a>
+      <a class="coffee" data-donate hidden href="#" target="_blank" rel="noopener nofollow" data-i18n="coffee">Buy me a coffee</a>
+      <button class="linkish" id="helpBtn" type="button" data-i18n="iphone">iPhone shortcut</button>
       <a href="https://github.com/tillheidrich/clip2md" target="_blank" rel="noopener">GitHub</a>
       <a href="/impressum.html">Impressum</a>
       <a href="/datenschutz.html">Datenschutz</a>
@@ -411,6 +458,32 @@
       </select>
     </div>
     <div class="sep"></div>
+    <h3 class="mono-label" data-i18n="s_clean">Clean-up</h3>
+    <div class="row">
+      <label for="cleanToggle"><span data-i18n="s_cleanup">Clean up web pages</span><span class="hint" data-i18n="s_cleanup_hint">Drop navigation, cookie banners, buttons</span></label>
+      <span class="sw"><input type="checkbox" id="cleanToggle" /><span class="track"></span><span class="knob"></span></span>
+    </div>
+    <div class="row">
+      <label for="redditToggle"><span data-i18n="s_reddit">Format Reddit threads</span><span class="hint" data-i18n="s_reddit_hint">No vote counts, comments as nested quotes</span></label>
+      <span class="sw"><input type="checkbox" id="redditToggle" /><span class="track"></span><span class="knob"></span></span>
+    </div>
+    <div class="sep"></div>
+    <h3 class="mono-label">Obsidian</h3>
+    <div class="row">
+      <label for="obsToggle"><span data-i18n="s_obs">“Open in Obsidian” button</span><span class="hint" data-i18n="s_obs_hint">Creates the note directly in your vault</span></label>
+      <span class="sw"><input type="checkbox" id="obsToggle" /><span class="track"></span><span class="knob"></span></span>
+    </div>
+    <div class="field two" id="obsFields" hidden>
+      <input id="obsVault" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-ph="ph_vault" placeholder="Vault (optional)" />
+      <input id="obsFolder" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" data-i18n-ph="ph_folder" placeholder="Folder (optional)" />
+    </div>
+    <div class="sep"></div>
+    <h3 class="mono-label" data-i18n="history">History</h3>
+    <div class="row">
+      <label for="histToggle"><span data-i18n="s_hist">Keep the last 10 clips</span><span class="hint" data-i18n="s_hist_hint">Stored only in this browser. Off by default.</span></label>
+      <span class="sw"><input type="checkbox" id="histToggle" /><span class="track"></span><span class="knob"></span></span>
+    </div>
+    <div class="sep"></div>
     <h3 class="mono-label" data-i18n="s_file">Filename</h3>
     <div class="field">
       <select id="namePattern" aria-label="Filename pattern">
@@ -420,12 +493,25 @@
     </div>
   </div>
 
+  <div class="pop wide" id="histPop" role="dialog" aria-labelledby="histTitle">
+    <div class="sheet-head"><h2 id="histTitle" data-i18n="history">History</h2><button class="pill icon" type="button" data-close aria-label="Close">✕</button></div>
+    <ul class="hist" id="histList"></ul>
+    <p class="empty-note" id="histEmpty" data-i18n="hist_empty">No clips saved yet.</p>
+    <div class="foot"><span class="mono-label" data-i18n="hist_local">Only in this browser</span><button class="mini" type="button" id="histClear" data-i18n="hist_clear">Delete all</button></div>
+  </div>
+  <div class="pop wide" id="helpPop" role="dialog" aria-labelledby="helpTitle">
+    <div class="sheet-head"><h2 id="helpTitle" data-i18n="iphone">iPhone shortcut</h2><button class="pill icon" type="button" data-close aria-label="Close">✕</button></div>
+    <div class="help" id="helpBody"></div>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="vendor/turndown.js"></script>
   <script src="vendor/turndown-plugin-gfm.js"></script>
   <script src="vendor/marked.umd.js"></script>
   <script src="vendor/purify.min.js"></script>
+  <script src="vendor/Readability.js"></script>
+  <script src="clean.js"></script>
   <script>
   (function () {
     "use strict";
@@ -433,7 +519,18 @@
     var T = {
       en: {
         tagline: 'Paste → Markdown', preview: 'Preview', file: 'File', save: 'Save', copy: 'Copy', clear: 'Clear', open: 'Open', paste: 'Paste',
-        donate: 'Donate', coffee: 'Buy me a coffee', t_donate: 'Support clip2md via PayPal',
+        donate: 'Donate', coffee: 'Buy me a coffee', t_donate: 'Support clip2md',
+        raw_again: 'Undo clean-up', t_obs: 'Open in Obsidian', history: 'History', iphone: 'iPhone shortcut',
+        src_article: 'Article extracted', src_cleaned: 'Page cleaned up', src_reddit: 'Reddit thread',
+        s_clean: 'Clean-up', s_cleanup: 'Clean up web pages', s_cleanup_hint: 'Drop navigation, cookie banners, buttons',
+        s_reddit: 'Format Reddit threads', s_reddit_hint: 'No vote counts, comments as nested quotes',
+        s_obs: '“Open in Obsidian” button', s_obs_hint: 'Creates the note directly in your vault', ph_vault: 'Vault (optional)', ph_folder: 'Folder (optional)',
+        s_hist: 'Keep the last 10 clips', s_hist_hint: 'Stored only in this browser. Off by default.',
+        hist_empty: 'No clips saved yet.', hist_local: 'Only in this browser', hist_clear: 'Delete all', hist_clear_confirm: 'Delete the whole history?',
+        hist_off_confirm: 'Also delete the clips saved so far?', hist_loaded: 'Clip restored', comments: 'Comments',
+        obs_open: 'Opening Obsidian …', obs_fail: 'Could not hand over to Obsidian — copy the Markdown instead', raw_done: 'Inserted without clean-up',
+        ios_hint: 'Tap “Paste” to take over the page',
+        help_html: '<p>iOS does not let web apps into the share sheet. A shortcut does the job: it copies the page and opens clip2md.</p><ol><li>Open the <b>Shortcuts</b> app, tap <b>+</b>, name it <b>clip2md</b>.</li><li>Tap the <b>ⓘ</b> icon, turn on <b>Show in Share Sheet</b> and allow <b>Safari web pages</b>, <b>Rich text</b>, <b>Text</b>.</li><li>Add <b>Get Details of Safari Web Page</b>, set it to <b>Page Contents</b>.</li><li>Add <b>Copy to Clipboard</b>.</li><li>Add <b>Open URLs</b> with <code>https://clip2md.heidrich-digital.de/?from=ios</code></li></ol><p>In Safari: Share → <b>clip2md</b> → tap <b>Paste</b>. The first time, iOS asks whether clip2md may paste.</p><p>For a selection only: copy it, then use the Paste button — no shortcut needed.</p>',
         empty_h: 'Paste to start',
         empty_p: 'A long Reddit thread, an article, any formatted text. Rich HTML becomes clean Markdown, plain text stays as it is.',
         paste_big: 'Paste from clipboard', k_paste: 'paste', k_save: 'save', k_drop: 'or drop a file',
@@ -452,7 +549,18 @@
       },
       de: {
         tagline: 'Einfügen → Markdown', preview: 'Vorschau', file: 'Datei', save: 'Speichern', copy: 'Kopieren', clear: 'Leeren', open: 'Öffnen', paste: 'Einfügen',
-        donate: 'Spenden', coffee: 'Spendier mir einen Kaffee', t_donate: 'clip2md per PayPal unterstützen',
+        donate: 'Spenden', coffee: 'Spendier mir einen Kaffee', t_donate: 'clip2md unterstützen',
+        raw_again: 'Ohne Aufräumen', t_obs: 'In Obsidian öffnen', history: 'Verlauf', iphone: 'iPhone-Kurzbefehl',
+        src_article: 'Artikel extrahiert', src_cleaned: 'Seite aufgeräumt', src_reddit: 'Reddit-Thread',
+        s_clean: 'Aufräumen', s_cleanup: 'Webseiten aufräumen', s_cleanup_hint: 'Navigation, Cookie-Banner, Knöpfe entfernen',
+        s_reddit: 'Reddit-Threads aufbereiten', s_reddit_hint: 'Keine Votes, Kommentare als verschachtelte Zitate',
+        s_obs: 'Knopf „In Obsidian öffnen"', s_obs_hint: 'Legt die Notiz direkt im Vault an', ph_vault: 'Vault (optional)', ph_folder: 'Ordner (optional)',
+        s_hist: 'Letzte 10 Clips behalten', s_hist_hint: 'Nur in diesem Browser gespeichert. Standardmäßig aus.',
+        hist_empty: 'Noch keine Clips gespeichert.', hist_local: 'Nur in diesem Browser', hist_clear: 'Alle löschen', hist_clear_confirm: 'Gesamten Verlauf löschen?',
+        hist_off_confirm: 'Bisher gespeicherte Clips auch löschen?', hist_loaded: 'Clip wiederhergestellt', comments: 'Kommentare',
+        obs_open: 'Obsidian wird geöffnet …', obs_fail: 'Übergabe an Obsidian fehlgeschlagen — Markdown stattdessen kopieren', raw_done: 'Ohne Aufräumen eingefügt',
+        ios_hint: 'Tippe auf „Einfügen", um die Seite zu übernehmen',
+        help_html: '<p>iOS lässt Web-Apps nicht ins Teilen-Menü. Ein Kurzbefehl übernimmt das: Er kopiert die Seite und öffnet clip2md.</p><ol><li>App <b>Kurzbefehle</b> öffnen, <b>+</b> tippen, Name <b>clip2md</b>.</li><li>Auf <b>ⓘ</b> tippen, <b>Im Share-Sheet anzeigen</b> einschalten und <b>Safari-Webseiten</b>, <b>Rich Text</b>, <b>Text</b> zulassen.</li><li>Aktion <b>Details von Safari-Webseite abrufen</b> hinzufügen, auf <b>Seiteninhalt</b> stellen.</li><li>Aktion <b>In Zwischenablage kopieren</b> hinzufügen.</li><li>Aktion <b>URLs öffnen</b> mit <code>https://clip2md.heidrich-digital.de/?from=ios</code></li></ol><p>In Safari dann: Teilen → <b>clip2md</b> → <b>Einfügen</b> tippen. Beim ersten Mal fragt iOS, ob clip2md einfügen darf.</p><p>Nur markierter Text: kopieren und den Einfügen-Knopf nutzen, dafür braucht es keinen Kurzbefehl.</p>',
         empty_h: 'Einfügen und los',
         empty_p: 'Ein langer Reddit-Thread, ein Artikel, beliebig formatierter Text. HTML wird zu sauberem Markdown, reiner Text bleibt, wie er ist.',
         paste_big: 'Aus Zwischenablage einfügen', k_paste: 'einfügen', k_save: 'speichern', k_drop: 'oder Datei hineinziehen',
@@ -487,7 +595,8 @@
     var settings = {
       frontMatter: LS.get('frontMatter', false), source: LS.get('source', ''), tags: LS.get('tags', ''),
       stripLinks: LS.get('stripLinks', false), dropImages: LS.get('dropImages', false),
-      bullet: LS.get('bullet', '-'), heading: LS.get('heading', 'atx'), pattern: LS.get('pattern', 'title')
+      bullet: LS.get('bullet', '-'), heading: LS.get('heading', 'atx'), pattern: LS.get('pattern', 'title'),
+      cleanup: LS.get('cleanup', true), reddit: LS.get('reddit', true), obs: LS.get('obs', false), obsVault: LS.get('obsVault', ''), obsFolder: LS.get('obsFolder', ''), hist: LS.get('hist', false)
     };
     var filenameEdited = false, forceRaw = false, forceRawTimer = null, toastTimer = null, previewOn = LS.get('preview', false);
 
@@ -523,7 +632,7 @@
       return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60).replace(/-+$/g,''); }
     function deriveTitle(md){ var L=md.split(/\r?\n/), i, m, s;
       for(i=0;i<L.length;i++){ m=L[i].match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/); if(m&&m[1].trim()) return m[1].trim(); }
-      for(i=0;i<L.length;i++){ s=L[i].trim(); if(!s) continue; if(/^([-*_=#>`|]{1,}|\[.*\])$/.test(s)) continue; return s.replace(/^[#>*\-\s]+/,'').trim(); }
+      for(i=0;i<L.length;i++){ s=L[i].trim(); if(!s) continue; if(/^([-*_=#>`|]{1,}|\[.*\])$/.test(s)) continue; return s.replace(/^[#>*\-\s]+/,'').replace(/!?\[([^\]]*)\]\([^)]*\)/g,'$1').replace(/[*_`]/g,'').trim(); }
       return ''; }
     function computeFilename(md){ if (settings.pattern === 'datetime') return today()+'-'+nowTime();
       var slug = slugify(deriveTitle(md)); return today()+(slug?'-'+slug:'-clip'); }
@@ -557,7 +666,7 @@
     function showSource(key, ok){ srcText.textContent=t(key); srcBadge.dataset.key=key; srcBadge.classList.toggle('ok',!!ok); srcBadge.classList.add('show');
       srcBadge.classList.remove('pulse'); void srcBadge.offsetWidth; srcBadge.classList.add('pulse'); }
     function hideSource(){ srcBadge.classList.remove('show','ok','pulse'); srcBadge.dataset.key=''; }
-    function refreshAll(flash){ updateCounts(); refreshFilename(flash); updateEmpty(); schedulePreview(); }
+    function refreshAll(flash){ updateCounts(); refreshFilename(flash); updateEmpty(); schedulePreview(); scheduleHistory(); syncHeadButtons(); }
 
     // ---------- Insert ----------
     function insertAtCursor(str){
@@ -568,14 +677,40 @@
       var s=editor.selectionStart, en=editor.selectionEnd;
       editor.value=editor.value.slice(0,s)+str+editor.value.slice(en);
       editor.selectionStart=editor.selectionEnd=s+str.length; }
+    // Clean-up (clean.js): Reddit → structured Markdown; pages → Readability or junk stripping.
+    function convertHtml(html){
+      var C=window.Clip2mdClean, r;
+      if(C && (settings.cleanup || settings.reddit)){
+        try { r=C.prepare(html, { cleanup: settings.cleanup, reddit: settings.reddit, toMd: htmlToMd, labels: { comments: t('comments') } }); } catch(e){ r=null; }
+      }
+      if(!r) return { md: htmlToMd(html), key: 'src_conv' };
+      var md = r.md != null ? r.md : htmlToMd(r.html);
+      if(settings.cleanup || r.reddit) md = C.postprocess(md, { reddit: !!r.reddit && settings.reddit });
+      if(r.title && md.indexOf(r.title) < 0) md = '# ' + r.title + '\n\n' + md;
+      else if(r.title && md.indexOf('## ' + r.title) === 0) md = md.slice(1);
+      var key = r.kind==='reddit' ? 'src_reddit' : r.kind==='article' ? 'src_article' : r.kind==='cleaned' ? 'src_cleaned' : 'src_conv';
+      return { md: md, key: key, changed: r.kind!=='plain' };
+    }
+    var lastInsert=null, rawBtn=$('rawBtn');
     function ingest(html, text, raw){
-      var out, key, ok=false;
+      var out, key, ok=false, changed=false;
       if(!raw && html && html.trim()){
-        try { out=htmlToMd(html); key='src_conv'; ok=true; if(!out && text) { out=text; key='src_raw'; ok=false; } }
+        try { var c=convertHtml(html); out=c.md; key=c.key; changed=!!c.changed; ok=true; if(!out && text) { out=text; key='src_raw'; ok=false; changed=false; } }
         catch(err){ out=text||''; key='src_fail'; }
       } else { out=text||''; key=raw?'src_raw_forced':'src_raw'; }
       if(!out) return false;
-      insertAtCursor(out); showSource(key, ok); refreshAll(true); return true; }
+      if(!editor.value.trim()) historyNew();
+      var start=editor.selectionStart;
+      insertAtCursor(out); showSource(key, ok); refreshAll(true);
+      lastInsert = changed ? { start: start, len: out.length, html: html } : null;
+      rawBtn.hidden = !changed;
+      return true; }
+    rawBtn.addEventListener('click', function(){
+      if(!lastInsert) return;
+      var plain; try { plain=htmlToMd(lastInsert.html); } catch(e){ return; }
+      editor.focus(); editor.setSelectionRange(lastInsert.start, lastInsert.start+lastInsert.len);
+      insertAtCursor(plain); lastInsert=null; rawBtn.hidden=true; showSource('src_conv', true); refreshAll(false); toast(t('raw_done'));
+    });
 
     editor.addEventListener('paste', function(e){
       var cd=e.clipboardData||window.clipboardData; if(!cd) return;
@@ -583,7 +718,7 @@
       if(!html && !text) return;
       e.preventDefault(); ingest(html, text, raw);
     });
-    editor.addEventListener('input', function(){ hideSource(); refreshAll(false); });
+    editor.addEventListener('input', function(){ hideSource(); rawBtn.hidden=true; lastInsert=null; refreshAll(false); });
 
     // ---------- One-click paste (Async Clipboard API) ----------
     function pasteFromClipboard(){
@@ -619,9 +754,9 @@
       var r=new FileReader();
       r.onerror=function(){ toast(t('readfail'), true); };
       r.onload=function(){ var txt=String(r.result||''), name=f.name.toLowerCase();
-        if(/\.html?$/.test(name) || f.type==='text/html'){ try{ txt=htmlToMd(txt); showSource('src_conv',true); }catch(_){ showSource('src_fail',false); } }
+        if(/\.html?$/.test(name) || f.type==='text/html'){ try{ var cv=convertHtml(txt); txt=cv.md; showSource(cv.key,true); }catch(_){ showSource('src_fail',false); } }
         else showSource('src_raw',false);
-        editor.value=txt;
+        historyNew(); editor.value=txt; rawBtn.hidden=true; lastInsert=null;
         if(!filenameEdited){ var base=slugify(f.name.replace(/\.[^.]+$/,'')); if(base) filename.value=base; }
         refreshAll(true); toast(t('loaded')); };
       r.readAsText(f);
@@ -671,7 +806,7 @@
       try{ document.execCommand('copy'); toast(t('copied')); }catch(e){ toast(t('copyfail'),true); } document.body.removeChild(ta); }
 
     $('clear').addEventListener('click', function(){ if(editor.value && !confirm(t('clear_confirm'))) return;
-      editor.value=''; filenameEdited=false; hideSource(); setFnameTag(); refreshAll(false); if(!coarse) editor.focus(); });
+      flushHistory(); historyNew(); editor.value=''; filenameEdited=false; hideSource(); rawBtn.hidden=true; setFnameTag(); refreshAll(false); if(!coarse) editor.focus(); });
 
     // ---------- Keyboard ----------
     document.addEventListener('keydown', function(e){ var mod=e.metaKey||e.ctrlKey;
@@ -702,10 +837,13 @@
     $('langBtn').addEventListener('click', function(){ setLang(lang==='de'?'en':'de'); });
 
     // ---------- Settings ----------
-    function openSettings(){ settingsPop.classList.add('open'); scrim.classList.add('open'); settingsBtn.setAttribute('aria-expanded','true'); }
-    function closeSettings(){ settingsPop.classList.remove('open'); scrim.classList.remove('open'); settingsBtn.setAttribute('aria-expanded','false'); }
-    settingsBtn.addEventListener('click', function(){ settingsPop.classList.contains('open')?closeSettings():openSettings(); });
+    var sheets=[settingsPop, $('histPop'), $('helpPop')];
+    function openSheet(el){ sheets.forEach(function(x){ x.classList.toggle('open', x===el); }); scrim.classList.add('open'); settingsBtn.setAttribute('aria-expanded', el===settingsPop?'true':'false'); }
+    function closeSettings(){ sheets.forEach(function(x){ x.classList.remove('open'); }); scrim.classList.remove('open'); settingsBtn.setAttribute('aria-expanded','false'); }
+    settingsBtn.addEventListener('click', function(){ settingsPop.classList.contains('open')?closeSettings():openSheet(settingsPop); });
     scrim.addEventListener('click', closeSettings);
+    document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeSettings); });
+    $('helpBtn').addEventListener('click', function(){ $('helpBody').innerHTML=t('help_html'); openSheet($('helpPop')); });
 
     function bindToggle(id, key, after){ var el=$(id); el.checked=!!settings[key];
       el.addEventListener('change', function(){ settings[key]=el.checked; LS.set(key,el.checked); if(after) after(); }); }
@@ -723,6 +861,91 @@
     bindSelect('headingSel','heading', buildTurndown);
     bindSelect('namePattern','pattern', function(){ refreshFilename(true); });
     syncFmFields();
+    bindToggle('cleanToggle','cleanup');
+    bindToggle('redditToggle','reddit');
+    var obsFields=$('obsFields');
+    bindToggle('obsToggle','obs', function(){ obsFields.hidden=!settings.obs; syncHeadButtons(); });
+    obsFields.hidden=!settings.obs;
+    ['obsVault','obsFolder'].forEach(function(k){ var el=$(k); el.value=settings[k]; el.addEventListener('input', function(){ settings[k]=el.value.trim(); LS.set(k, settings[k]); }); });
+    bindToggle('histToggle','hist', function(){
+      if(settings.hist){ historyNew(); scheduleHistory(); }
+      else if(confirm(t('hist_off_confirm'))) H.clear();
+      syncHeadButtons(); });
+
+    // ---------- Head buttons ----------
+    function syncHeadButtons(){
+      var has=editor.value.trim().length>0;
+      $('obsBtn').hidden = !(settings.obs && has);
+      $('histBtn').hidden = !settings.hist;
+    }
+
+    // ---------- Obsidian ----------
+    $('obsBtn').addEventListener('click', function(){
+      if(!editor.value.trim()){ toast(t('nocopy'), true); return; }
+      var content=fullContent();
+      var name=(filename.value.trim()||computeFilename(editor.value)).replace(/[\/\\:*?"<>|#^\[\]]+/g,'-').replace(/\.md$/i,'');
+      var folder=(settings.obsFolder||'').replace(/^\/+|\/+$/g,'');
+      var base='obsidian://new?'+(settings.obsVault?'vault='+encodeURIComponent(settings.obsVault)+'&':'')+(folder?'file='+encodeURIComponent(folder+'/'+name):'name='+encodeURIComponent(name));
+      function go(u){ toast(t('obs_open')); window.location.href=u; }
+      // Long threads do not fit into a URL: hand the text over via the clipboard instead.
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(content).then(function(){ go(base+'&clipboard=true'); }, function(){
+          if(content.length<6000) go(base+'&content='+encodeURIComponent(content)); else toast(t('obs_fail'), true, 4000); });
+      } else if(content.length<6000) go(base+'&content='+encodeURIComponent(content));
+      else toast(t('obs_fail'), true, 4000);
+    });
+
+    // ---------- History (IndexedDB, opt-in) ----------
+    var H=(function(){
+      var dbp=null, MAX=10;
+      function db(){ if(dbp) return dbp; dbp=new Promise(function(res, rej){ try { var r=indexedDB.open('clip2md',1);
+        r.onupgradeneeded=function(){ r.result.createObjectStore('clips',{keyPath:'id'}); };
+        r.onsuccess=function(){ res(r.result); }; r.onerror=function(){ rej(r.error); }; } catch(e){ rej(e); } }); return dbp; }
+      function tx(mode, fn){ return db().then(function(d){ return new Promise(function(res, rej){ var x=d.transaction('clips',mode), st=x.objectStore('clips'), out=fn(st);
+        x.oncomplete=function(){ res(out && out.result!==undefined ? out.result : out); }; x.onerror=function(){ rej(x.error); }; }); }); }
+      return {
+        put: function(item){ return tx('readwrite', function(st){ st.put(item); }).then(function(){ return H.list(); }).then(function(all){
+          if(all.length>MAX) return tx('readwrite', function(st){ all.slice(MAX).forEach(function(i){ st.delete(i.id); }); }); }); },
+        list: function(){ return tx('readonly', function(st){ return st.getAll(); }).then(function(a){ return (a||[]).sort(function(x,y){ return y.ts-x.ts; }); }); },
+        del: function(id){ return tx('readwrite', function(st){ st.delete(id); }); },
+        clear: function(){ return tx('readwrite', function(st){ st.clear(); }); }
+      };
+    })();
+    var histId=null, histTimer=null;
+    function historyNew(){ histId=null; }
+    function flushHistory(){ clearTimeout(histTimer); saveHistory(); }
+    function scheduleHistory(){ if(!settings.hist) return; clearTimeout(histTimer); histTimer=setTimeout(saveHistory, 1200); }
+    function saveHistory(){
+      if(!settings.hist || !window.indexedDB) return; var md=editor.value; if(!md.trim()) return;
+      if(!histId) histId=Date.now();
+      H.put({ id: histId, ts: Date.now(), title: deriveTitle(md).slice(0,120) || filename.value, name: filename.value, md: md }).catch(function(){});
+    }
+    function renderHistory(){
+      var ul=$('histList'); ul.innerHTML='';
+      H.list().then(function(items){
+        $('histEmpty').hidden = items.length>0; $('histClear').hidden = !items.length;
+        items.forEach(function(it){
+          var li=document.createElement('li'), b=document.createElement('button'), d=document.createElement('button');
+          b.className='load'; b.type='button';
+          var ti=document.createElement('b'); ti.textContent=it.title||it.name||'—';
+          var meta=document.createElement('span'); meta.textContent=new Date(it.ts).toLocaleString(lang==='de'?'de-DE':'en-GB',{dateStyle:'short',timeStyle:'short'})+' · '+countWords(it.md)+' '+t('words');
+          b.appendChild(ti); b.appendChild(meta);
+          b.addEventListener('click', function(){
+            flushHistory();
+            editor.value=it.md; histId=it.id; filenameEdited=!!it.name; if(it.name) filename.value=it.name; setFnameTag();
+            hideSource(); rawBtn.hidden=true; refreshAll(false); closeSettings(); toast(t('hist_loaded')); });
+          d.className='del'; d.type='button'; d.setAttribute('aria-label','Delete'); d.textContent='✕';
+          d.addEventListener('click', function(){ H.del(it.id).then(renderHistory); if(histId===it.id) histId=null; });
+          li.appendChild(b); li.appendChild(d); ul.appendChild(li);
+        });
+      }).catch(function(){ $('histEmpty').hidden=false; });
+    }
+    $('histBtn').addEventListener('click', function(){ flushHistory(); setTimeout(renderHistory, 50); openSheet($('histPop')); });
+    $('histClear').addEventListener('click', function(){ if(confirm(t('hist_clear_confirm'))) H.clear().then(renderHistory); });
+
+    // ---------- Donate (only shown once a working link is configured) ----------
+    var DONATE_URL='';
+    if(DONATE_URL){ document.querySelectorAll('[data-donate]').forEach(function(a){ a.href=DONATE_URL; a.target='_blank'; a.rel='noopener nofollow'; a.hidden=false; }); }
 
     // ---------- Init ----------
     setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light', false);
@@ -735,11 +958,13 @@
     (function(){
       var q; try { q=new URLSearchParams(location.search); } catch(e){ return; }
       var title=(q.get('title')||'').trim(), text=(q.get('text')||'').trim(), url=(q.get('url')||'').trim();
+      if(q.get('from')==='ios'){ try { history.replaceState(null, '', location.pathname); } catch(e){}
+        setTimeout(function(){ toast(t('ios_hint'), false, 4500); var pb=$('pasteBtn'); pb.classList.add('nudge'); $('pasteBig').classList.add('nudge'); }, 300); return; }
       if(!title && !text && !url) return;
       if(!url){ var m=text.match(/https?:\/\/\S+$/); if(m){ url=m[0]; text=text.slice(0,m.index).trim(); } }
       var md=(title && text.indexOf(title)!==0 ? '# '+title+'\n\n' : '')+text+(url && text.indexOf(url)<0 ? (text?'\n\n':'')+'<'+url+'>' : '');
       if(url){ settings.source=url; $('fmSource').value=url; }
-      editor.value=md; showSource('src_raw', false); refreshAll(true);
+      historyNew(); editor.value=md; showSource('src_raw', false); refreshAll(true);
       try { history.replaceState(null, '', location.pathname); } catch(e){}
     })();
     if(!coarse) editor.focus();
