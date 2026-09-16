@@ -62,3 +62,12 @@ table.legal-table td { padding: 0.3rem 0; vertical-align: top; overflow-wrap: an
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; } }
 .card > :first-child { margin-top: 18px; }
+.topbar nav a.lang { font-family: var(--mono); font-size: 0.72rem; letter-spacing: .06em; border: 1px solid var(--line); margin-left: 4px; }
+.topbar nav a.lang:hover { color: var(--accent); border-color: var(--accent); background: transparent; }
+@media (max-width: 560px) {
+  .topbar { gap: 8px; padding-left: 12px; padding-right: 12px; }
+  .brand { font-size: 1.05rem; }
+  .topbar nav { flex-wrap: nowrap; gap: 2px; }
+  .topbar nav a { padding: 0 8px; font-size: 0.8rem; }
+  .topbar nav a.lang { padding: 0 7px; margin-left: 2px; }
+}
