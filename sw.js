@@ -2,7 +2,7 @@
    Pages (navigations, .html): network first, cache only as offline fallback —
    so new or changed pages are never frozen for existing users.
    Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
-var CACHE = 'clip2md-v11';
+var CACHE = 'clip2md-v12';
 var ASSETS = [
   '/',
   '/index.html',
@@ -68,7 +68,11 @@ var OFFLINE_PAGE = [
   'Sobald du wieder online bist, lädt die Seite normal.<br>',
   '<span lang="en">clip2md is offline and not fully stored on this device yet. ',
   'It will load normally once you are back online.</span></p>',
-  '<p><a href="/?fresh">Neu laden / Reload</a></p></main></body></html>'
+  '<p><a href="/?fresh">Neu laden / Reload</a></p></main>',
+  '<script>(function(){try{var s=navigator.serviceWorker;if(!s)return;',
+  's.addEventListener("controllerchange",function(){location.reload()});',
+  'setTimeout(function(){location.reload()},5000);}catch(e){}})();<\/script>',
+  '</body></html>'
 ].join('');
 
 function offlinePage() {
