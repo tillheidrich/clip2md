@@ -2,7 +2,7 @@
    Pages (navigations, .html): network first, cache only as offline fallback —
    so new or changed pages are never frozen for existing users.
    Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
-var CACHE = 'clip2md-v9';
+var CACHE = 'clip2md-v10';
 var ASSETS = [
   '/',
   '/index.html',
@@ -51,32 +51,80 @@ function isPage(req, url) {
   return req.mode === 'navigate' || req.destination === 'document' || /\.html$/.test(url.pathname) || url.pathname === '/';
 }
 
+// Last resort for a page request: never hand respondWith an empty value — Safari
+// turns that into "FetchEvent.respondWith received an error: Returned response is null"
+// and the site looks broken even though the server is fine.
+var OFFLINE_PAGE = [
+  '<!doctype html><html lang="de"><head><meta charset="utf-8">',
+  '<meta name="viewport" content="width=device-width, initial-scale=1">',
+  '<title>clip2md</title><style>',
+  'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;',
+  'background:#EAEAE3;color:#16150F;font:16px/1.6 system-ui,-apple-system,sans-serif;padding:24px}',
+  'main{max-width:34rem;text-align:center}h1{font-size:1.5rem;margin:0 0 .6rem}',
+  'p{margin:0 0 1rem;color:#6A685D}a{color:#1B3BE0}',
+  '@media(prefers-color-scheme:dark){body{background:#16181f;color:#f2f2ee}p{color:#a8a79c}a{color:#8aa2ff}}',
+  '</style></head><body><main><h1>Keine Verbindung</h1>',
+  '<p>clip2md ist offline und liegt noch nicht vollständig auf diesem Gerät. ',
+  'Sobald du wieder online bist, lädt die Seite normal.<br>',
+  '<span lang="en">clip2md is offline and not fully stored on this device yet. ',
+  'It will load normally once you are back online.</span></p>',
+  '<p><a href="/?fresh">Neu laden / Reload</a></p></main></body></html>'
+].join('');
+
+function offlinePage() {
+  return new Response(OFFLINE_PAGE, {
+    status: 503,
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }
+  });
+}
+
+function put(req, res) {
+  if (!res || !res.ok) return;
+  var copy = res.clone();
+  caches.open(CACHE).then(function (c) { c.put(req, copy); })['catch'](function () {});
+}
+
+// Page fallback chain, resolved step by step: a bare `a || caches.match(b)` would
+// hand back a pending promise that can still resolve to undefined.
+function pageFallback(req) {
+  return caches.match(req).then(function (hit) {
+    if (hit) return hit;
+    return caches.match('/index.html');
+  }).then(function (hit) {
+    if (hit) return hit;
+    return caches.match('/');
+  }).then(function (hit) {
+    return hit || offlinePage();
+  })['catch'](function () { return offlinePage(); });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
-  var url = new URL(req.url);
+  var url;
+  try { url = new URL(req.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return; // external links (PayPal, GitHub) untouched
 
   if (isPage(req, url)) {
     e.respondWith(
       fetch(req).then(function (res) {
-        if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
+        if (!res) return pageFallback(req);
+        put(req, res);
         return res;
-      }).catch(function () {
-        return caches.match(req).then(function (hit) {
-          return hit || caches.match(url.pathname.replace(/\/$/, '/index.html')) || caches.match('/index.html');
-        });
-      })
+      })['catch'](function () { return pageFallback(req); })
     );
     return;
   }
 
   e.respondWith(
     caches.match(req).then(function (hit) {
-      return hit || fetch(req).then(function (res) {
-        if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
-        return res;
+      if (hit) return hit;
+      return fetch(req).then(function (res) {
+        put(req, res);
+        return res || Response.error();
+      })['catch'](function () {
+        return caches.match(req).then(function (h) { return h || Response.error(); });
       });
-    })
+    })['catch'](function () { return Response.error(); })
   );
 });
