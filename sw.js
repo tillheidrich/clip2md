@@ -30,7 +30,13 @@ var ASSETS = [
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }));
+  // Cache each asset on its own: with addAll a single missing file fails the whole
+  // install, the worker is discarded and the app silently loses offline support.
+  e.waitUntil(caches.open(CACHE).then(function (c) {
+    return Promise.all(ASSETS.map(function (a) {
+      return c.add(a)['catch'](function () {});
+    }));
+  }));
 });
 
 self.addEventListener('activate', function (e) {
