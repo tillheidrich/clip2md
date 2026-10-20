@@ -2,7 +2,7 @@
    Pages (navigations, .html): network first, cache only as offline fallback —
    so new or changed pages are never frozen for existing users.
    Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
-var CACHE = 'clip2md-v10';
+var CACHE = 'clip2md-v11';
 var ASSETS = [
   '/',
   '/index.html',
@@ -106,8 +106,17 @@ self.addEventListener('fetch', function (e) {
   if (url.origin !== self.location.origin) return; // external links (PayPal, GitHub) untouched
 
   if (isPage(req, url)) {
+    // One retry before giving up: in Safari the very first navigation right after a
+    // worker takes over can fail outright, which would otherwise show the offline page
+    // (or, before v10, break the navigation) even though the network is fine.
     e.respondWith(
       fetch(req).then(function (res) {
+        if (!res) throw new Error('empty');
+        return res;
+      })['catch'](function () {
+        return new Promise(function (resolve) { setTimeout(resolve, 400); })
+          .then(function () { return fetch(req); });
+      }).then(function (res) {
         if (!res) return pageFallback(req);
         put(req, res);
         return res;
