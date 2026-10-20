@@ -1002,14 +1002,19 @@
 
       window.addEventListener('load', function(){
         var hadController = !!swc.controller, reloading = false;
+        // A worker that takes over from a stale one: reload once so the new
+        // assets are used now instead of on the next visit.
+        swc.addEventListener('controllerchange', function(){
+          if(!hadController || reloading) return;
+          reloading = true; location.reload();
+        });
         swc.register('/sw.js').then(function(reg){
-          try { reg.update(); } catch(e){}
-          // A worker that takes over from a stale one: reload once so the new
-          // assets are used now instead of on the next visit.
-          swc.addEventListener('controllerchange', function(){
-            if(!hadController || reloading) return;
-            reloading = true; location.reload();
-          });
+          // Only worth checking when a worker is already in charge; right after a
+          // wipe there is nothing to update and the call would race the teardown.
+          if(!hadController || !reg || !reg.update) return;
+          setTimeout(function(){
+            try { var u = reg.update(); if(u && u['catch']) u['catch'](function(){}); } catch(e){}
+          }, 1000);
         })['catch'](function(){});
       });
     })();
