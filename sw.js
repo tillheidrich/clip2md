@@ -2,7 +2,7 @@
    Pages (navigations, .html): network first, cache only as offline fallback —
    so new or changed pages are never frozen for existing users.
    Static assets (vendor, fonts, icons): cache first. Bump CACHE on asset changes. */
-var CACHE = 'clip2md-v8';
+var CACHE = 'clip2md-v9';
 var ASSETS = [
   '/',
   '/index.html',

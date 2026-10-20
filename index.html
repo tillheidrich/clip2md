@@ -543,7 +543,7 @@
         ph_source: 'Source URL', ph_tags: 'tags, comma-separated',
         t_preview: 'Toggle preview', t_settings: 'Settings', t_theme: 'Toggle theme',
         src_conv: 'HTML → Markdown', src_raw: 'Plain text', src_raw_forced: 'Plain text (forced)', src_fail: 'Plain text (conversion failed)',
-        saved: 'Saved', copied: 'Markdown copied', nosave: 'Nothing to save', nocopy: 'Nothing to copy',
+        updating: 'Loading the current version …', saved: 'Saved', copied: 'Markdown copied', nosave: 'Nothing to save', nocopy: 'Nothing to copy',
         loaded: 'File loaded', clear_confirm: 'Clear the editor?', copyfail: 'Copy failed',
         paste_empty: 'The clipboard is empty', paste_denied: 'No clipboard access — press ⌘V / Ctrl+V or long-press the editor and choose Paste',
         replace_confirm: 'Replace the editor content?', toobig: 'File too large (max 10 MB)', readfail: 'Could not read file'
@@ -573,7 +573,7 @@
         ph_source: 'Quell-URL', ph_tags: 'Tags, kommagetrennt',
         t_preview: 'Vorschau umschalten', t_settings: 'Einstellungen', t_theme: 'Hell/Dunkel',
         src_conv: 'HTML → Markdown', src_raw: 'Reiner Text', src_raw_forced: 'Reiner Text (erzwungen)', src_fail: 'Reiner Text (Konvertierung fehlgeschlagen)',
-        saved: 'Gespeichert', copied: 'Markdown kopiert', nosave: 'Nichts zu speichern', nocopy: 'Nichts zu kopieren',
+        updating: 'Aktuelle Fassung wird geladen …', saved: 'Gespeichert', copied: 'Markdown kopiert', nosave: 'Nichts zu speichern', nocopy: 'Nichts zu kopieren',
         loaded: 'Datei geladen', clear_confirm: 'Editor wirklich leeren?', copyfail: 'Kopieren fehlgeschlagen',
         paste_empty: 'Die Zwischenablage ist leer', paste_denied: 'Kein Zugriff auf die Zwischenablage — ⌘V / Strg+V drücken oder lange in den Editor tippen und „Einfügen" wählen',
         replace_confirm: 'Editor-Inhalt ersetzen?', toobig: 'Datei zu groß (max. 10 MB)', readfail: 'Datei nicht lesbar'
@@ -979,7 +979,40 @@
     })();
     if(!coarse) editor.focus();
 
-    if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }); }
+    // ---------- PWA / service worker ----------
+    // Self-repair: versions before v4 cached pages cache-first, which can freeze the
+    // app on an old build (Safari in particular keeps the stale worker alive).
+    // '…/?fresh' unregisters every worker and drops every cache, then reloads clean.
+    (function(){
+      if(!('serviceWorker' in navigator)) return;
+      var swc = navigator.serviceWorker;
+
+      function wipe(){
+        var jobs=[];
+        try { jobs.push(swc.getRegistrations().then(function(rs){ return Promise.all(rs.map(function(r){ return r.unregister(); })); })); } catch(e){}
+        try { if(window.caches) jobs.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); })); } catch(e){}
+        return Promise.all(jobs)['catch'](function(){});
+      }
+
+      if(/[?&](fresh|reset)(=|&|$)/.test(location.search)){
+        toast(t('updating'), false, 6000);
+        wipe().then(function(){ location.replace(location.pathname); });
+        return;
+      }
+
+      window.addEventListener('load', function(){
+        var hadController = !!swc.controller, reloading = false;
+        swc.register('/sw.js').then(function(reg){
+          try { reg.update(); } catch(e){}
+          // A worker that takes over from a stale one: reload once so the new
+          // assets are used now instead of on the next visit.
+          swc.addEventListener('controllerchange', function(){
+            if(!hadController || reloading) return;
+            reloading = true; location.reload();
+          });
+        })['catch'](function(){});
+      });
+    })();
   })();
   </script>
 </body>
